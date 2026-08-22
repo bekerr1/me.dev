@@ -30,6 +30,9 @@ if command -v gh >/dev/null 2>&1; then
 
   latest_nm=$(gh api repos/kunchenguid/no-mistakes/releases/latest --jq '.tag_name' 2>/dev/null)
   check no-mistakes "$NO_MISTAKES_VERSION" "$latest_nm"
+
+  latest_th=$(gh api repos/kunchenguid/treehouse/releases/latest --jq '.tag_name' 2>/dev/null)
+  check treehouse "$TREEHOUSE_VERSION" "$latest_th"
 else
   echo "gh not installed -- skipping the GitHub-hosted pins"
 fi

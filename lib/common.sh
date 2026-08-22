@@ -87,3 +87,53 @@ write_if_changed() {
 }
 
 prettify() { printf '%s' "${1/#$HOME/\~}"; }
+
+# install_release_binary <name> <owner/repo> <tag>
+#
+# Fetch a single-binary GitHub release asset named <name>-<tag>-<os>-<arch>.tar.gz
+# into ~/.<name>/bin and symlink it onto ~/.local/bin.
+#
+# Several of these tools ship a curl|sh installer that always resolves
+# releases/latest -- there is no way to ask it for a specific version -- and
+# falls back to `sudo` into /usr/local/bin whenever ~/.local/bin is not already
+# on PATH. That is wrong for a pinned, unattended install on a fresh machine,
+# so the asset is fetched directly. No sudo, ever.
+install_release_binary() {
+  local name="$1" repo="$2" tag="$3"
+  local bin="$HOME/.$name/bin/$name"
+  local dest="$HOME/.local/bin/$name"
+
+  if [[ -x $bin ]] && "$bin" --version 2>/dev/null | grep -qF "${tag#v}"; then
+    skip "$name $tag already installed"
+    return 0
+  fi
+  if [[ $ME_DRY_RUN == 1 ]]; then
+    skip "dry run: would install $name $tag"
+    return 0
+  fi
+
+  local arch os
+  case "$(uname -m)" in
+    x86_64|amd64)  arch=amd64 ;;
+    arm64|aarch64) arch=arm64 ;;
+    *) warn "$name: unsupported architecture $(uname -m)"; return 1 ;;
+  esac
+  [[ $(os_name) == macos ]] && os=darwin || os=linux
+
+  local file="${name}-${tag}-${os}-${arch}.tar.gz"
+  local url="https://github.com/${repo}/releases/download/${tag}/${file}"
+  local tmp; tmp=$(mktemp -d)
+
+  if curl -fsSL "$url" -o "$tmp/$file" && tar xzf "$tmp/$file" -C "$tmp"; then
+    mkdir -p "$HOME/.$name/bin" "$HOME/.local/bin"
+    install -m 0755 "$tmp/$name" "$bin"
+    ln -sf "$bin" "$dest"
+    ok "$name $tag -> $(prettify "$dest")"
+    rm -rf "$tmp"
+    return 0
+  fi
+
+  warn "$name: could not fetch $url"
+  rm -rf "$tmp"
+  return 1
+}

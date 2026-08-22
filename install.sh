@@ -2,11 +2,10 @@
 #
 # me -- one-shot development environment install.
 #
-#   ./install.sh                     everything except opt-in agent tools
+#   ./install.sh                     everything, including the agent tooling
 #   ./install.sh --minimal           shell, git, tmux only (servers, ssh boxes)
 #   ./install.sh --only nvim,tmux    just those modules
 #   ./install.sh --skip agents
-#   ./install.sh --with firstmate,no-mistakes
 #   ./install.sh --no-net            relink config only, no downloads
 #   ./install.sh --dry-run
 #
@@ -22,7 +21,6 @@ export ME_ROOT
 MODULES=(shell git tmux nvim agents)
 ONLY=""
 SKIP=""
-WITH=""
 
 usage() { sed -n '2,20p' "$0" | sed 's/^#\ \?//'; exit 0; }
 
@@ -31,7 +29,6 @@ while [[ $# -gt 0 ]]; do
     --minimal)  ME_MINIMAL=1; ONLY="shell,git,tmux"; shift ;;
     --only)     ONLY="${2:?--only needs a list}"; shift 2 ;;
     --skip)     SKIP="${2:?--skip needs a list}"; shift 2 ;;
-    --with)     WITH="${2:?--with needs a list}"; shift 2 ;;
     --no-net)   ME_NO_NET=1; shift ;;
     --dry-run)  ME_DRY_RUN=1; shift ;;
     -h|--help)  usage ;;
@@ -39,7 +36,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 ME_NO_NET="${ME_NO_NET:-0}"
-export ME_MINIMAL ME_DRY_RUN ME_NO_NET ME_WITH="$WITH"
+export ME_MINIMAL ME_DRY_RUN ME_NO_NET
 
 in_list() { case ",$2," in *",$1,"*) return 0 ;; *) return 1 ;; esac; }
 

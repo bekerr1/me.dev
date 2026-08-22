@@ -14,11 +14,11 @@ export ME_AGENTS_FILE="$HOME/.config/me/AGENTS.md"
 agents() { nvim "$ME_AGENTS_FILE"; }
 
 # fm -- launch firstmate's first mate in the current repo using the configured
-# harness. Installed only when `me install --with firstmate` was run.
+# harness. Installed by default; absent only after a --minimal install.
 fm() {
   local dir="${FIRSTMATE_HOME:-$HOME/.local/share/firstmate}"
   if [ ! -d "$dir" ]; then
-    printf 'firstmate is not installed. Run: me install --with firstmate\n' >&2
+    printf 'firstmate is not installed. Run: me install\n' >&2
     return 1
   fi
   ( cd "$dir" && "${FIRSTMATE_HARNESS:-claude}" "$@" )

@@ -16,9 +16,8 @@ tracked.
 
 | Command | What it does |
 | --- | --- |
-| `./install.sh` | Shell, git, tmux, neovim, agent instructions, skills |
+| `./install.sh` | Everything: shell, git, tmux, neovim, agent instructions and all agent tooling |
 | `./install.sh --minimal` | Shell, git, tmux only — for servers and jump boxes |
-| `./install.sh --with firstmate,no-mistakes` | Also install the opt-in agent tooling |
 | `./install.sh --only nvim` | One module |
 | `./install.sh --no-net` | Relink config, download nothing |
 | `./install.sh --dry-run` | Show what would change |
@@ -106,16 +105,23 @@ Edit `agents/AGENTS.md` and run `me sync`. Never edit the copies.
 Third-party tooling, pinned in `tools.env`. `me pins` reports what has moved
 upstream; bump the pin and re-run `me install`.
 
-| Tool | Install | Lands in | Purpose |
-| --- | --- | --- | --- |
-| [mattpocock/skills](https://github.com/mattpocock/skills) | default | `~/.agents/skills`, symlinked into each harness | 36 engineering skills — `/implement`, `/tdd`, `/to-spec`, `/code-review` |
-| [firstmate](https://github.com/kunchenguid/firstmate) | `--with firstmate` | `~/.local/share/firstmate` | Agent swarms — one first mate dispatching a crew across git worktrees. Launch with `fm`. |
-| [no-mistakes](https://github.com/kunchenguid/no-mistakes) | `--with no-mistakes` | `~/.local/bin/no-mistakes` | AI validation pipeline in front of `git push`. Run `no-mistakes init` per repo. |
+All of it installs on every machine — no flags. `--minimal` and `--no-net` skip
+the lot, which is what you want on a server or a jump box.
+
+| Tool | Lands in | Purpose |
+| --- | --- | --- |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | `~/.agents/skills`, symlinked into each harness | 36 engineering skills — `/implement`, `/tdd`, `/to-spec`, `/code-review` |
+| [firstmate](https://github.com/kunchenguid/firstmate) | `~/.local/share/firstmate` | Agent swarms — one first mate dispatching a crew across git worktrees. Launch with `fm`. |
+| [no-mistakes](https://github.com/kunchenguid/no-mistakes) | `~/.local/bin/no-mistakes` | Validation pipeline in front of `git push`. Run `no-mistakes init` per repo. |
+| [treehouse](https://github.com/kunchenguid/treehouse) | `~/.local/bin/treehouse` | Git worktree management |
 
 Two notes on how these are installed:
 
 - `skills` writes `skills-lock.json` into the working directory, so it is run
   from `$HOME` — the lock is global, not per-repo, and never lands in this repo.
-- `no-mistakes` upstream install script always takes `releases/latest` and falls
-  back to `sudo ln -s` into `/usr/local/bin`. Neither works for a pinned,
-  unattended install, so the release asset is fetched directly instead. No sudo.
+- `no-mistakes` and `treehouse` both ship a `curl | sh` installer that always
+  takes `releases/latest`, with no way to request a version, and falls back to
+  `sudo` into `/usr/local/bin` when `~/.local/bin` is not already on `PATH`.
+  Neither suits a pinned, unattended install on a fresh machine, so
+  `install_release_binary` in `lib/common.sh` fetches the release asset directly.
+  No sudo.

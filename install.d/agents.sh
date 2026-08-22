@@ -1,5 +1,5 @@
 # Agents: one shared instruction file, wired into every harness, plus the
-# opt-in third-party tooling pinned in tools.env.
+# third-party tooling pinned in tools.env.
 
 # shellcheck disable=SC1091
 . "$ME_ROOT/tools.env"
@@ -20,11 +20,9 @@ cat "$ME_ROOT/agents/cursor/frontmatter.mdc" "$ME_ROOT/agents/AGENTS.md" \
 
 # --- third-party agent tooling --------------------------------------------
 #
-# Skills are config-shaped and install everywhere. firstmate and no-mistakes are
-# heavier -- a repo you run inside, and a Go binary that intercepts git push --
-# so they are opt-in per machine via --with.
-
-wanted() { case ",${ME_WITH:-}," in *",$1,"*) return 0 ;; *) return 1 ;; esac; }
+# All of it installs on every machine. These are part of the working setup, not
+# extras -- having to remember a flag to get them is the same as not having them.
+# `--minimal` (servers, jump boxes) and `--no-net` still skip the lot.
 
 if [[ $ME_MINIMAL == 1 || $ME_NO_NET == 1 ]]; then
   skip "skipping agent tooling (--minimal/--no-net)"
@@ -51,64 +49,26 @@ else
   warn "npx not found -- skipping $SKILLS_SOURCE"
 fi
 
-# firstmate
-if wanted firstmate; then
-  if [[ -d "$FIRSTMATE_HOME/.git" ]]; then
-    run git -C "$FIRSTMATE_HOME" fetch --quiet origin
-    run git -C "$FIRSTMATE_HOME" checkout --quiet "$FIRSTMATE_REF"
-    ok "firstmate at $FIRSTMATE_REF"
-  else
-    run mkdir -p "$(dirname "$FIRSTMATE_HOME")"
-    run git clone --quiet "$FIRSTMATE_REPO" "$FIRSTMATE_HOME"
-    run git -C "$FIRSTMATE_HOME" checkout --quiet "$FIRSTMATE_REF"
-    ok "firstmate cloned to $(prettify "$FIRSTMATE_HOME") at $FIRSTMATE_REF"
-  fi
-  have gh || warn "firstmate needs an authenticated gh; run: gh auth login"
+# firstmate -- a distro you run a harness inside, so it is cloned rather than
+# installed as a binary. Pinned by commit; upstream cuts no releases.
+if [[ -d "$FIRSTMATE_HOME/.git" ]]; then
+  run git -C "$FIRSTMATE_HOME" fetch --quiet origin
+  run git -C "$FIRSTMATE_HOME" checkout --quiet "$FIRSTMATE_REF"
+  ok "firstmate at $FIRSTMATE_REF"
 else
-  skip "firstmate (enable with --with firstmate)"
+  run mkdir -p "$(dirname "$FIRSTMATE_HOME")"
+  run git clone --quiet "$FIRSTMATE_REPO" "$FIRSTMATE_HOME"
+  run git -C "$FIRSTMATE_HOME" checkout --quiet "$FIRSTMATE_REF"
+  ok "firstmate cloned to $(prettify "$FIRSTMATE_HOME") at $FIRSTMATE_REF"
+fi
+have gh || warn "firstmate needs an authenticated gh; run: gh auth login"
+
+# no-mistakes -- validation pipeline in front of `git push`.
+if install_release_binary no-mistakes kunchenguid/no-mistakes "$NO_MISTAKES_VERSION"; then
+  log "  run 'no-mistakes init' inside a repo to add the push target"
 fi
 
-# no-mistakes
-#
-# Upstream's install.sh always resolves releases/latest -- it has no version
-# override -- and falls back to `sudo ln -s` into /usr/local/bin when
-# ~/.local/bin is not already on PATH. Neither is acceptable for a pinned,
-# unattended install, so the release asset is fetched directly instead.
-if wanted no-mistakes; then
-  nm_bin="$HOME/.no-mistakes/bin/no-mistakes"
-  nm_link="$HOME/.local/bin/no-mistakes"
-
-  if [[ -x $nm_bin ]] && "$nm_bin" --version 2>/dev/null | grep -qF "${NO_MISTAKES_VERSION#v}"; then
-    skip "no-mistakes $NO_MISTAKES_VERSION already installed"
-  elif [[ $ME_DRY_RUN == 1 ]]; then
-    skip "dry run: would install no-mistakes $NO_MISTAKES_VERSION"
-  else
-    case "$(uname -m)" in
-      x86_64|amd64)  nm_arch=amd64 ;;
-      arm64|aarch64) nm_arch=arm64 ;;
-      *) nm_arch="" ;;
-    esac
-    nm_os=$([[ $(os_name) == macos ]] && echo darwin || echo linux)
-
-    if [[ -z $nm_arch ]]; then
-      warn "no-mistakes: unsupported architecture $(uname -m)"
-    else
-      nm_file="no-mistakes-${NO_MISTAKES_VERSION}-${nm_os}-${nm_arch}.tar.gz"
-      nm_url="https://github.com/kunchenguid/no-mistakes/releases/download/${NO_MISTAKES_VERSION}/${nm_file}"
-      nm_tmp=$(mktemp -d)
-      if curl -fsSL "$nm_url" -o "$nm_tmp/$nm_file" && tar xzf "$nm_tmp/$nm_file" -C "$nm_tmp"; then
-        mkdir -p "$HOME/.no-mistakes/bin" "$HOME/.local/bin"
-        install -m 0755 "$nm_tmp/no-mistakes" "$nm_bin"
-        ln -sf "$nm_bin" "$nm_link"
-        ok "no-mistakes $NO_MISTAKES_VERSION -> $(prettify "$nm_link")"
-        note_nm=1
-      else
-        warn "no-mistakes: could not fetch $nm_url"
-      fi
-      rm -rf "$nm_tmp"
-    fi
-  fi
-  [[ ${note_nm:-0} == 1 ]] && log "  run 'no-mistakes init' inside a repo to add the push target"
-else
-  skip "no-mistakes (enable with --with no-mistakes)"
+# treehouse -- git worktree management.
+if install_release_binary treehouse kunchenguid/treehouse "$TREEHOUSE_VERSION"; then
+  log "  run 'treehouse --help' to get started"
 fi
