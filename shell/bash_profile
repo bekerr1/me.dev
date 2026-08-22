@@ -1,0 +1,6 @@
+# ~/.bash_profile -> me/shell/bash_profile
+#
+# Login shells only. macOS Terminal and `ssh host` start login shells and do NOT
+# read .bashrc on their own, so chain to it here.
+
+[ -r "$HOME/.bashrc" ] && . "$HOME/.bashrc"

@@ -1,0 +1,71 @@
+# ~/.gitconfig -> me/git/gitconfig
+#
+# Identity and anything machine-specific belongs in ~/.config/me/gitconfig.local,
+# which is included at the bottom and never tracked.
+
+[core]
+	editor = nvim -u ~/.config/me/root/git/editor.vim
+	excludesfile = ~/.config/me/root/git/gitignore_global
+	pager = less -FRX
+
+[init]
+	defaultBranch = main
+
+[pull]
+	# Never create a merge commit by accident on `git pull`; if the branch has
+	# diverged, stop and let it be a deliberate rebase or merge.
+	ff = only
+
+[push]
+	default = simple
+	autoSetupRemote = true    # `git push` on a new branch just works
+	followTags = true
+
+[fetch]
+	prune = true              # delete local refs for branches deleted on the remote
+	pruneTags = true
+
+[rebase]
+	autosquash = true
+	autostash = true          # stash/pop around a rebase instead of refusing
+	updateRefs = true         # keep stacked branches pointing at the right commits
+
+[merge]
+	conflictstyle = zdiff3    # show the common ancestor in conflict markers
+
+[diff]
+	algorithm = histogram     # better hunk matching than the default myers
+	colorMoved = zebra        # distinguish moved code from added code
+	mnemonicPrefix = true
+	renames = copies
+
+[log]
+	date = iso
+
+[status]
+	showUntrackedFiles = all
+	submoduleSummary = true
+
+[rerere]
+	enabled = true            # remember conflict resolutions and replay them
+	autoupdate = true
+
+[branch]
+	sort = -committerdate     # `git branch` lists most recently used first
+
+[color]
+	ui = auto
+
+[help]
+	autocorrect = prompt
+
+[alias]
+	last = log -1 HEAD --stat
+	unstage = restore --staged
+	amend = commit --amend --no-edit
+	graph = log --oneline --graph --decorate --all -30
+	# Branches you have touched, most recent first, with their upstream state.
+	recent = for-each-ref --sort=-committerdate refs/heads/ --format='%(color:yellow)%(refname:short)%(color:reset) %(color:dim)%(committerdate:relative)%(color:reset) %(upstream:track)'
+
+[include]
+	path = ~/.config/me/gitconfig.local

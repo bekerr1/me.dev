@@ -1,0 +1,10 @@
+---
+description: Global engineering guidelines, shared with every agent harness
+alwaysApply: true
+---
+
+<!-- GENERATED FILE -- do not edit.
+     Cursor rules cannot import another file by path, so install.sh concatenates
+     this header with agents/AGENTS.md to produce ~/.cursor/rules/agents.mdc.
+     Edit agents/AGENTS.md and re-run `me install --only agents`. -->
+

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+#
+# me -- manage this development environment from anywhere.
+#
+#   me install [args...]   re-run the installer (all install.sh flags work)
+#   me update              git pull, then reinstall
+#   me sync                relink config only; no network, no plugin sync
+#   me pins                report which pinned upstreams have moved
+#   me edit                open the repo in nvim
+#   me doctor              check that everything is wired up correctly
+#   me cd                  print the repo path (use: cd "$(me cd)")
+
+set -euo pipefail
+
+ME_ROOT="$(cd "$HOME/.config/me/root" 2>/dev/null && pwd -P)" \
+  || { echo "me: ~/.config/me/root is missing -- run install.sh from the repo" >&2; exit 1; }
+cd "$ME_ROOT"
+
+cmd="${1:-doctor}"
+[[ $# -gt 0 ]] && shift
+
+case "$cmd" in
+  install) exec ./install.sh "$@" ;;
+  update)  git pull --ff-only && exec ./install.sh "$@" ;;
+  sync)    exec ./install.sh --no-net "$@" ;;
+  pins)    exec ./scripts/check-pins.sh ;;
+  edit)    exec nvim "$ME_ROOT" ;;
+  cd)      printf '%s\n' "$ME_ROOT" ;;
+  doctor)  exec ./scripts/doctor.sh ;;
+  -h|--help|help) sed -n '3,12p' "$0" | sed 's/^#\ \?//' ;;
+  *) printf 'me: unknown command %s (try: me help)\n' "$cmd" >&2; exit 1 ;;
+esac

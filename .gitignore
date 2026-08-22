@@ -1,0 +1,22 @@
+# Nothing machine-specific belongs in this repo. Real secrets live in
+# ~/.config/me/secrets.env, which is outside the checkout entirely -- these
+# entries are a second line of defence in case one gets copied in by mistake.
+
+secrets.env
+*.local
+*.local.*
+.env
+.env.*
+!secrets.env.example
+
+# lazy.nvim resolves plugin versions per machine; the lockfile is intentionally
+# not tracked so a stale pin on one box cannot break another.
+nvim/lazy-lock.json
+
+*.swp
+*~
+.DS_Store
+
+# Written by the `skills` installer; belongs in $HOME, not here.
+skills-lock.json
+.agents/

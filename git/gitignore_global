@@ -1,0 +1,25 @@
+# Editor and OS noise that should never reach a repo, on any project.
+
+*~
+*.swp
+*.swo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+.idea/
+.vscode/
+*.iml
+
+.direnv/
+.envrc.local
+
+# Agent scratch. Project-level agent config (AGENTS.md, .claude/) IS tracked --
+# only per-run state is ignored.
+.claude/settings.local.json
+.claude/shell-snapshots/
+.aider*

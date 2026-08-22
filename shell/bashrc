@@ -1,0 +1,24 @@
+# ~/.bashrc -> me/shell/bashrc
+#
+# Interactive bash configuration. Everything real lives in rc.d/*.sh, loaded in
+# lexical order. Keep this file a loader; put logic in a module.
+
+# Non-interactive shells (scp, rsync, ssh <cmd>) must stay silent and cheap.
+case $- in
+  *i*) ;;
+  *) return ;;
+esac
+
+ME_ROOT="${ME_ROOT:-$HOME/.config/me/root}"
+ME_STATE="${ME_STATE:-$HOME/.config/me}"
+
+for _rc in "$ME_ROOT"/shell/rc.d/*.sh; do
+  [ -r "$_rc" ] && . "$_rc"
+done
+unset _rc
+
+# Machine-local overrides, never tracked by git.
+#   secrets.env  - API keys and tokens (chmod 600)
+#   local.sh     - host-specific PATH, aliases, tool init
+[ -r "$ME_STATE/secrets.env" ] && . "$ME_STATE/secrets.env"
+[ -r "$ME_STATE/local.sh" ] && . "$ME_STATE/local.sh"
