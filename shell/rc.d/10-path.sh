@@ -40,6 +40,7 @@ if [ -s "$NVM_DIR/nvm.sh" ]; then
     unset -f nvm node npm npx nvm_load
     . "$NVM_DIR/nvm.sh"
     [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+    nvm use default >/dev/null 2>&1
   }
   nvm()  { nvm_load; nvm "$@"; }
   node() { nvm_load; node "$@"; }
