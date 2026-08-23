@@ -88,6 +88,30 @@ write_if_changed() {
 
 prettify() { printf '%s' "${1/#$HOME/\~}"; }
 
+# clone_pinned <label> <url> <ref> <dest>
+#
+# Clone a repo at an exact ref, or move an existing clone onto it. Used for
+# things that are source rather than a release artifact: tmux plugins, firstmate.
+clone_pinned() {
+  local label="$1" url="$2" ref="$3" dest="$4"
+
+  if [[ -d "$dest/.git" ]]; then
+    if [[ "$(git -C "$dest" rev-parse HEAD 2>/dev/null)" == "$(git -C "$dest" rev-parse "$ref^{commit}" 2>/dev/null)" ]]; then
+      skip "$label at $ref"
+      return 0
+    fi
+    run git -C "$dest" fetch --quiet --tags origin
+    run git -C "$dest" checkout --quiet --detach "$ref"
+    ok "$label moved to $ref"
+    return 0
+  fi
+
+  run mkdir -p "$(dirname "$dest")"
+  run git clone --quiet "$url" "$dest" || { warn "$label: clone failed"; return 1; }
+  run git -C "$dest" checkout --quiet --detach "$ref"
+  ok "$label $ref -> $(prettify "$dest")"
+}
+
 # install_release_binary <name> <owner/repo> <tag>
 #
 # Fetch a single-binary GitHub release asset named <name>-<tag>-<os>-<arch>.tar.gz

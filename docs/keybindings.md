@@ -54,6 +54,24 @@ session picker.
 | `/` | Incremental search **up** through scrollback |
 | `?` | Incremental search down |
 
+### Persistence
+
+| Key | Action |
+| --- | --- |
+| `C-s` | Save the whole session tree now |
+| `C-r` | Restore it |
+
+tmux-continuum also saves every 15 minutes and restores automatically when the
+tmux server starts, so a reboot does not cost you your sessions. Window indices
+and names survive exactly, including deliberate gaps; pane contents come back
+too, so a restored window looks like the one you left.
+
+Coding agents are deliberately **not** restarted on restore — only the shell,
+its working directory, and editors/pagers. Restoring the cwd is the useful part;
+relaunching claude/codex/pi across every agent window on every boot is not.
+
+Snapshots live in `~/.local/share/tmux/resurrect`.
+
 ### Nested tmux — `F12`, no prefix
 
 `F12` makes the **outer** tmux ignore every key, so all input reaches whatever

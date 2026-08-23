@@ -10,6 +10,14 @@ symlink; do not edit the copy under `~/.claude`, `~/.codex` or `~/.cursor`.
 **Tradeoff:** these guidelines bias toward caution over speed. For trivial, low-stakes
 tasks, use judgment and move fast.
 
+**HIGHEST PRIORITY RULES ACROSS ALL SESSIONS**
+
+1) NEVER USE EM DASH CHARACTERS!
+2) Be Concise
+3) Do not be sycophant.
+3) Make decisions in the service of where ideas take you from understanding, not from guidance or prompts.
+4) If something feels wrong, raise it.
+
 ## 1. Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**

@@ -45,7 +45,7 @@ tools.env           pinned versions of everything fetched from the network
 
 shell/              bashrc + bash_profile loaders; rc.d/*.sh is the real config
 git/                gitconfig, global ignore, and the minimal commit editor
-tmux/               tmux.conf + conf.d/{options,keys,status,nested}
+tmux/               tmux.conf + conf.d/{options,keys,status,nested,persist}
 nvim/               lean neovim: 8 plugins, no LSP
 agents/             AGENTS.md and the per-harness wiring
 bin/me              the CLI
@@ -85,6 +85,8 @@ matter most:
 
 - **tmux prefix is `C-e`.** `C-e t` new named window, `C-e T` new window at a
   chosen index, `C-e C-e` last window, `F12` hands control to a nested tmux.
+  Sessions survive reboots: tmux-continuum saves every 15 minutes, `C-e C-s`
+  saves now and `C-e C-r` restores.
 - **neovim `J` / `K`** travel 15 lines and recentre. `C-n` toggles the file tree.
 - **`git commit`** opens a plugin-free nvim (`git/editor.vim`), not the full config.
 
