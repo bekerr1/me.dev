@@ -1,6 +1,6 @@
 # Codex
 
-`~/.codex/config.toml` is rewritten by Codex itself — it stores per-project trust
+`~/.codex/config.toml` is rewritten by Codex itself. It stores per-project trust
 levels, plugin state and marketplace metadata. Symlinking it into this repo would
 mean fighting the tool on every write, so it is left alone.
 

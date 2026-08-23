@@ -1,6 +1,6 @@
 # Keybindings
 
-## tmux — prefix `C-e`
+## tmux (prefix `C-e`)
 
 `C-e` then the key, unless marked otherwise. `-r` keys repeat without
 re-pressing the prefix.
@@ -12,12 +12,12 @@ re-pressing the prefix.
 | `t` | New window, prompts for a name, appended at the end |
 | `T` | New window at the index you type. If that index is taken, the rest shift right; if it's past the end, the window is created there and the gap is kept |
 | `A` | Rename the current window (pre-filled) |
-| `C-e` | Last window — the flip between the two you are actually using |
+| `C-e` | Last window, the flip between the two you are actually using |
 | `h` / `l` | Previous / next window |
 | `H` / `L` | Move the current window left / right (`-r`) |
 | `w` | Visual window and session picker |
 | `X` | Kill the window, with confirmation |
-| `1`–`9` | Jump to window by index |
+| `1`-`9` | Jump to window by index |
 
 ### Panes
 
@@ -66,23 +66,23 @@ tmux server starts, so a reboot does not cost you your sessions. Window indices
 and names survive exactly, including deliberate gaps; pane contents come back
 too, so a restored window looks like the one you left.
 
-Coding agents are deliberately **not** restarted on restore — only the shell,
-its working directory, and editors/pagers. Restoring the cwd is the useful part;
+Coding agents are deliberately **not** restarted on restore. Only the shell,
+its working directory, and editors/pagers come back. Restoring the cwd is the useful part;
 relaunching claude/codex/pi across every agent window on every boot is not.
 
 Snapshots live in `~/.local/share/tmux/resurrect`.
 
-### Nested tmux — `F12`, no prefix
+### Nested tmux (`F12`, no prefix)
 
 `F12` makes the **outer** tmux ignore every key, so all input reaches whatever
-tmux is inside — a nested local server, or one at the far end of an ssh session.
+tmux is inside: a nested local server, or one at the far end of an ssh session.
 The status bar collapses to a dim `OFF` marker so there is never any doubt about
 which server is listening. `F12` again takes control back.
 
 `C-e N` opens a genuinely nested tmux server on its own socket, for trying a
 config change without disturbing the session you are working in.
 
-## neovim — leader is `Space`
+## neovim (leader is `Space`)
 
 ### Movement
 
@@ -103,7 +103,7 @@ config change without disturbing the session you are working in.
 | `Esc` | Clear search highlight |
 | `C-h/j/k/l` | Move between splits |
 
-### Find — `<leader>f`
+### Find (`<leader>f`)
 
 | Key | Action |
 | --- | --- |
@@ -118,7 +118,7 @@ config change without disturbing the session you are working in.
 
 Inside a picker: `C-j`/`C-k` move, `Esc` closes.
 
-### Git — `<leader>g`
+### Git (`<leader>g`)
 
 | Key | Action |
 | --- | --- |

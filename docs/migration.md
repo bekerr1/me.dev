@@ -1,6 +1,6 @@
 # Migration from `dot-files`
 
-The old repo is at `~/dot-files`. Nothing there was deleted — it is still a git
+The old repo is at `~/dot-files`. Nothing there was deleted. It is still a git
 repo, so anything dropped here is one `git show` away.
 
 ## Kept
@@ -37,13 +37,13 @@ repo, so anything dropped here is one `git show` away.
 | `tput cup 9999 0` at shell start | Scrolled the screen on every new shell |
 | Hardcoded `/home/brendan` and `/Users/brendank` paths, NetApp GOPROXY, Rancher Desktop block | Not portable |
 | nvim `BufEnter` auto-`lcd` | Silently changed the working directory, which fights telescope's project root and `:!` commands |
-| Nested tmux via `$TMUX_PARENT` and config-file swapping | Replaced by `F12` off-mode — one server, no state to desync |
+| Nested tmux via `$TMUX_PARENT` and config-file swapping | Replaced by `F12` off-mode: one server, no state to desync |
 
 ## Secrets
 
 `dot-files/bash/bashrc` held a live `ANTHROPIC_API_KEY` inline. It was never
-committed — verified with `git log -S` across all refs and by scanning every
-blob in the object database — so it never reached the `origin` remote and did
+committed. Verified with `git log -S` across all refs and by scanning every
+blob in the object database, so it never reached the `origin` remote and did
 not need rotating. `dev-config/apikeys` was never tracked either.
 
 It was one `git add -A` away from being published, though, which is the reason

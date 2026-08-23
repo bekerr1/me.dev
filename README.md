@@ -1,8 +1,8 @@
 # me
 
 One repo for the whole development environment: shell, git, tmux, neovim, and
-the agent harness configuration. Clone it on any machine — macOS, Linux, a box
-you only ever reach over ssh — run one command, and be productive.
+the agent harness configuration. Clone it on any machine (macOS, Linux, or a box you only ever reach over ssh),
+run one command, and be productive.
 
 ```bash
 git clone <this-repo> ~/Development/me && ~/Development/me/install.sh
@@ -17,7 +17,7 @@ tracked.
 | Command | What it does |
 | --- | --- |
 | `./install.sh` | Everything: shell, git, tmux, neovim, agent instructions and all agent tooling |
-| `./install.sh --minimal` | Shell, git, tmux only — for servers and jump boxes |
+| `./install.sh --minimal` | Shell, git, tmux only, for servers and jump boxes |
 | `./install.sh --only nvim` | One module |
 | `./install.sh --no-net` | Relink config, download nothing |
 | `./install.sh --dry-run` | Show what would change |
@@ -107,20 +107,20 @@ Edit `agents/AGENTS.md` and run `me sync`. Never edit the copies.
 Third-party tooling, pinned in `tools.env`. `me pins` reports what has moved
 upstream; bump the pin and re-run `me install`.
 
-All of it installs on every machine — no flags. `--minimal` and `--no-net` skip
+All of it installs on every machine, no flags. `--minimal` and `--no-net` skip
 the lot, which is what you want on a server or a jump box.
 
 | Tool | Lands in | Purpose |
 | --- | --- | --- |
-| [mattpocock/skills](https://github.com/mattpocock/skills) | `~/.agents/skills`, symlinked into each harness | 36 engineering skills — `/implement`, `/tdd`, `/to-spec`, `/code-review` |
-| [firstmate](https://github.com/kunchenguid/firstmate) | `~/.local/share/firstmate` | Agent swarms — one first mate dispatching a crew across git worktrees. Launch with `fm`. |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | `~/.agents/skills`, symlinked into each harness | 36 engineering skills: `/implement`, `/tdd`, `/to-spec`, `/code-review` |
+| [firstmate](https://github.com/kunchenguid/firstmate) | `~/.local/share/firstmate` | Agent swarms: one first mate dispatching a crew across git worktrees. Launch with `fm`. |
 | [no-mistakes](https://github.com/kunchenguid/no-mistakes) | `~/.local/bin/no-mistakes` | Validation pipeline in front of `git push`. Run `no-mistakes init` per repo. |
 | [treehouse](https://github.com/kunchenguid/treehouse) | `~/.local/bin/treehouse` | Git worktree management |
 
 Two notes on how these are installed:
 
 - `skills` writes `skills-lock.json` into the working directory, so it is run
-  from `$HOME` — the lock is global, not per-repo, and never lands in this repo.
+  from `$HOME`, so the lock is global, not per-repo, and never lands in this repo.
 - `no-mistakes` and `treehouse` both ship a `curl | sh` installer that always
   takes `releases/latest`, with no way to request a version, and falls back to
   `sudo` into `/usr/local/bin` when `~/.local/bin` is not already on `PATH`.
