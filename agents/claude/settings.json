@@ -1,6 +1,6 @@
 {
+  "includeCoAuthoredBy": false,
   "model": "opus",
   "effortLevel": "high",
-  "tui": "fullscreen",
-  "includeCoAuthoredBy": false
+  "tui": "fullscreen"
 }
