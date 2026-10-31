@@ -86,6 +86,15 @@ runs `sudo`, and only when something is missing, so re-runs never prompt.
 On Linux it also makes Ghostty the default terminal (Ctrl+Alt+T, "Open in
 Terminal") by writing `~/.config/xdg-terminals.list`.
 
+## Terminal colors
+
+`ghostty/config.ghostty` is linked to `~/.config/ghostty/config.ghostty`. It uses
+Ghostty's built-in Cursor Dark theme. (nvim and the tmux status bar still use
+kanagawa-dragon.) To change a color, uncomment its line in
+the overrides block (every value the theme sets is listed there) and press
+`ctrl+shift+,` in Ghostty to reload. `ghostty +list-themes` previews the other
+built-in themes; swap the `theme =` line to use one.
+
 After install, `me` is on `$PATH`:
 
 ```
@@ -109,6 +118,7 @@ shell/              bashrc + bash_profile loaders; rc.d/*.sh is the real config
 git/                gitconfig, global ignore, and the minimal commit editor
 tmux/               tmux.conf + conf.d/{options,keys,status,nested,persist}
 nvim/               lean neovim: 8 plugins, no LSP
+ghostty/            terminal config: Cursor Dark colors
 agents/             AGENTS.md and the per-harness wiring
 bin/me              the CLI
 scripts/            doctor, pin checker, pre-commit secret guard

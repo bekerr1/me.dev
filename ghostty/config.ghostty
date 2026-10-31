@@ -1,0 +1,38 @@
+# Ghostty -- linked to ~/.config/ghostty/config.ghostty by install.d/ghostty.sh.
+# Reload a running Ghostty with ctrl+shift+, (cmd+shift+, on macOS).
+# Every option: `ghostty +show-config --default --docs`
+
+# --- colors -------------------------------------------------------------------
+#
+# Base theme: Cursor Dark, one of Ghostty's built-in themes.
+# Browse the alternatives with `ghostty +list-themes`.
+#
+# Note: nvim (kanagawa-dragon) and the tmux status bar
+# (tmux/conf.d/20-status.conf) still use their own kanagawa palette, so they
+# will not match this exactly.
+theme = Cursor Dark
+
+# Overrides on top of the theme. Uncomment and change any of these; anything
+# left commented keeps the theme's value, shown here for reference.
+#
+# background           = #141414
+# foreground           = #ffffff
+# cursor-color         = #ffffff
+# cursor-text          = #141414
+# selection-background = #303030
+# selection-foreground = #ffffff
+#
+# The 16 ANSI colors programs pick from: 0-7 normal, 8-15 bright.
+#           black          red            green          yellow
+# palette = 0=#2a2a2a    1=#bf616a      2=#a3be8c      3=#ebcb8b
+# palette = 8=#505050    9=#bf616a     10=#a3be8c     11=#ebcb8b
+#           blue           magenta        cyan           white
+# palette = 4=#81a1c1    5=#b48ead      6=#88c0d0      7=#d8dee9
+# palette = 12=#81a1c1  13=#b48ead     14=#88c0d0     15=#ffffff
+#
+# Each palette entry is its own line, e.g.:
+# palette = 1=#c4746e
+
+# Tint the window titlebar and tabs with the terminal background, instead of the
+# system GTK theme, so the frame does not clash with the colors above.
+window-theme = ghostty
