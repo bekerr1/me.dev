@@ -77,8 +77,9 @@ use `:Lazy update` for that.
 ### System packages
 
 `install.d/packages.sh` runs first and installs what has to come from the OS
-package manager: `curl` and `git` everywhere, plus
-[Ghostty](https://ghostty.org), the default terminal, unless `--minimal` is set.
+package manager: `curl`, `git` and `tmux` everywhere, plus Neovim, ripgrep,
+fzf and [Ghostty](https://ghostty.org), the default terminal, unless
+`--minimal` is set.
 It uses `apt-get` on Linux and Homebrew on macOS. This is the only module that
 runs `sudo`, and only when something is missing, so re-runs never prompt.
 `--no-net` reports what is missing but installs nothing.
@@ -110,7 +111,7 @@ me edit       open this repo in nvim
 
 ```
 install.sh          entry point; install.d/*.sh are the modules
-install.d/packages.sh  OS packages (curl, git, ghostty); the only module that uses sudo
+install.d/packages.sh  OS packages (curl, git, tmux, neovim, ...); the only module that uses sudo
 lib/common.sh       symlink/backup/logging helpers
 tools.env           pinned versions of everything fetched from the network
 

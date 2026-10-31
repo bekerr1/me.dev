@@ -2,5 +2,6 @@
   "includeCoAuthoredBy": false,
   "model": "opus",
   "effortLevel": "high",
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "theme": "dark"
 }

@@ -3,20 +3,26 @@
 # This is the one module that may use sudo, and only when something is actually
 # missing -- a re-run on a machine that already has everything never prompts.
 #
-#   core     curl, git     every machine, --minimal included; the rest of the
-#                          installer downloads with curl
-#   desktop  ghostty       the default terminal; skipped by --minimal
+#   core     curl, git, tmux    every machine, --minimal included; the rest
+#                               of the installer downloads with curl
+#   dev      neovim, ripgrep,   the editor and what it leans on; skipped by
+#            fzf                --minimal
+#   desktop  ghostty            the default terminal; skipped by --minimal
+#
+# Entries are `package` or `package:command` when the two names differ.
 #
 # --no-net installs nothing and only reports what is missing.
 
-ME_CORE_PKGS=(curl git)
+ME_CORE_PKGS=(curl git tmux)
+ME_DEV_PKGS=(neovim:nvim ripgrep:rg fzf)
 ME_DESKTOP_PKGS=(ghostty)
 
-# pkg_install <pkg>...  -- install whichever of these are missing.
+# pkg_install <pkg[:cmd]>...  -- install whichever of these are missing.
 pkg_install() {
-  local missing=() p
-  for p in "$@"; do
-    if have "$p"; then skip "$p"; else missing+=("$p"); fi
+  local missing=() spec p
+  for spec in "$@"; do
+    p="${spec%%:*}"
+    if have "${spec##*:}"; then skip "$p"; else missing+=("$p"); fi
   done
   [[ ${#missing[@]} -eq 0 ]] && return 0
 
@@ -66,11 +72,11 @@ pkg_install "${ME_CORE_PKGS[@]}"
 
 section desktop
 if [[ $ME_MINIMAL == 1 ]]; then
-  partial "skipping desktop apps (--minimal)"
+  partial "skipping dev tools and desktop apps (--minimal)"
   return 0 2>/dev/null || true
 fi
 
-pkg_install "${ME_DESKTOP_PKGS[@]}"
+pkg_install "${ME_DEV_PKGS[@]}" "${ME_DESKTOP_PKGS[@]}"
 
 # Ghostty as the default terminal. Ubuntu 25.04+ (and other xdg-terminal-exec
 # desktops) launch Ctrl+Alt+T and "open in terminal" through this list; the copy
