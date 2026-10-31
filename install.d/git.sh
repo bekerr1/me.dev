@@ -16,5 +16,5 @@ else
 fi
 
 if have delta; then
-  ok "delta found -- add '[core] pager = delta' to gitconfig.local to use it"
+  info "delta found -- add '[core] pager = delta' to gitconfig.local to use it"
 fi

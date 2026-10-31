@@ -33,6 +33,9 @@ if command -v gh >/dev/null 2>&1; then
 
   latest_th=$(gh api repos/kunchenguid/treehouse/releases/latest --jq '.tag_name' 2>/dev/null)
   check treehouse "$TREEHOUSE_VERSION" "$latest_th"
+
+  latest_pi=$(gh api repos/earendil-works/pi/releases/latest --jq '.tag_name' 2>/dev/null)
+  check pi "$PI_VERSION" "$latest_pi"
 else
   echo "gh not installed -- skipping the GitHub-hosted pins"
 fi

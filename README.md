@@ -8,6 +8,13 @@ run one command, and be productive.
 git clone <this-repo> ~/Development/me && ~/Development/me/install.sh
 ```
 
+A fresh Ubuntu install has neither `git` nor `curl`. The installer adds `curl`
+itself, but you need `git` to clone, so on a brand-new machine start with:
+
+```bash
+sudo apt install -y git
+```
+
 Everything is symlinked back to the checkout, so `git pull` updates the live
 config. Nothing is copied except the two machine-local files that must not be
 tracked.
@@ -16,14 +23,68 @@ tracked.
 
 | Command | What it does |
 | --- | --- |
-| `./install.sh` | Everything: shell, git, tmux, neovim, agent instructions and all agent tooling |
-| `./install.sh --minimal` | Shell, git, tmux only, for servers and jump boxes |
+| `./install.sh` | Everything: system packages (curl, git, Ghostty), shell, git, tmux, neovim, agent instructions and all agent tooling |
+| `./install.sh --minimal` | curl and git, then shell, git, tmux only, for servers and jump boxes. No Ghostty. |
 | `./install.sh --only nvim` | One module |
 | `./install.sh --no-net` | Relink config, download nothing |
 | `./install.sh --dry-run` | Show what would change |
 
 Re-running is always safe. Anything real that is in the way moves to
 `~/.me-backup/` first.
+
+### Desired state
+
+The installer is declarative: each run converges the machine on what the repo
+describes, then reports `N change(s)` or `already up to date`. Add something
+and it gets installed; delete it from the repo and the next `me install` (or
+`me sync`) removes it from the machine. Nothing needs a matching cleanup step.
+
+This works through a manifest at `~/.config/me/state/managed.tsv`. Every path the
+installer manages is recorded against its module, and anything recorded last
+time but not declared this time is pruned. `link`, `generate`, `clone_pinned`,
+`install_release_binary` and `install_pi` all record their paths automatically.
+
+Pruning is deliberately conservative:
+
+- `--only` and `--skip` never prune modules they did not run.
+- A module that errors keeps everything it had.
+- A section a module skips (downloads under `--no-net`, desktop apps under
+  `--minimal`) is marked `partial` and keeps its old entries. The rest of the
+  module still reconciles.
+- A symlink you have repointed somewhere else is left alone.
+- System packages are never uninstalled.
+
+To add to it:
+
+| You want | Write, in an `install.d/*.sh` module |
+| --- | --- |
+| A config file or directory from the repo | `link "$ME_ROOT/x" "$HOME/.x"` |
+| A file built from repo content | `generate "$HOME/.x" < <(cmd)`, a redirect rather than a pipe |
+| A one-time stub the user edits (never pruned) | `write_if_changed "$ME_STATE/x" <<'EOF'` only if the file is missing |
+| A git repo at a fixed ref | `clone_pinned` with the pin in `tools.env` |
+| A single-binary GitHub release | `install_release_binary` with the pin in `tools.env` |
+| Anything else the installer creates | `own "$path"`, then create it idempotently |
+| A part a flag can skip | `section <name>` before it, `partial "why"` in the skip branch |
+| A whole new module | add `install.d/<name>.sh` and list it in `MODULES` in `install.sh` |
+| Clean up a link made before the manifest existed | `retire "$HOME/.x"` |
+
+`me install --dry-run` shows exactly what a run would add and remove.
+
+Neovim plugins reconcile the same way. The installer installs anything missing
+from the spec and removes anything no longer in it, but never updates plugins:
+use `:Lazy update` for that.
+
+### System packages
+
+`install.d/packages.sh` runs first and installs what has to come from the OS
+package manager: `curl` and `git` everywhere, plus
+[Ghostty](https://ghostty.org), the default terminal, unless `--minimal` is set.
+It uses `apt-get` on Linux and Homebrew on macOS. This is the only module that
+runs `sudo`, and only when something is missing, so re-runs never prompt.
+`--no-net` reports what is missing but installs nothing.
+
+On Linux it also makes Ghostty the default terminal (Ctrl+Alt+T, "Open in
+Terminal") by writing `~/.config/xdg-terminals.list`.
 
 After install, `me` is on `$PATH`:
 
@@ -40,6 +101,7 @@ me edit       open this repo in nvim
 
 ```
 install.sh          entry point; install.d/*.sh are the modules
+install.d/packages.sh  OS packages (curl, git, ghostty); the only module that uses sudo
 lib/common.sh       symlink/backup/logging helpers
 tools.env           pinned versions of everything fetched from the network
 
@@ -100,7 +162,7 @@ installer symlinks it into every harness:
 | Claude Code | `~/.claude/CLAUDE.md` (imports it) |
 | Codex | `~/.codex/AGENTS.md` |
 | Cursor | `~/.cursor/rules/agents.mdc` (generated) |
-| Pi and others | `~/AGENTS.md` |
+| Pi | `~/.pi/agent/AGENTS.md` |
 
 Edit `agents/AGENTS.md` and run `me sync`. Never edit the copies.
 
@@ -116,6 +178,7 @@ the lot, which is what you want on a server or a jump box.
 | [firstmate](https://github.com/kunchenguid/firstmate) | `~/.local/share/firstmate` | Agent swarms: one first mate dispatching a crew across git worktrees. Launch with `fm`. |
 | [no-mistakes](https://github.com/kunchenguid/no-mistakes) | `~/.local/bin/no-mistakes` | Validation pipeline in front of `git push`. Run `no-mistakes init` per repo. |
 | [treehouse](https://github.com/kunchenguid/treehouse) | `~/.local/bin/treehouse` | Git worktree management |
+| [Pi](https://github.com/earendil-works/pi) | `~/.local/share/pi/<version>`, launcher at `~/.local/bin/pi` | Minimal, extensible agent harness. Picks up `~/.agents/skills` on its own. Run `/login` inside it once. |
 
 Two notes on how these are installed:
 
@@ -127,3 +190,6 @@ Two notes on how these are installed:
   Neither suits a pinned, unattended install on a fresh machine, so
   `install_release_binary` in `lib/common.sh` fetches the release asset directly.
   No sudo.
+- Pi's own installer is interactive and installs Node first. Pi also ships a
+  self-contained binary per platform, so `install_pi` unpacks that release
+  instead: no Node needed. Update it by bumping `PI_VERSION`, not `pi update`.

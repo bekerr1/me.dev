@@ -35,12 +35,13 @@ check_link "$HOME/.tmux.conf" "$ME_ROOT/tmux/tmux.conf"
 check_link "$HOME/.config/nvim" "$ME_ROOT/nvim"
 check_link "$ME_STATE/AGENTS.md" "$ME_ROOT/agents/AGENTS.md"
 check_link "$HOME/.claude/CLAUDE.md" "$ME_ROOT/agents/claude/CLAUDE.md"
+check_link "$HOME/.pi/agent/AGENTS.md" "$ME_ROOT/agents/AGENTS.md"
 
 section "tools"
-for t in bash git tmux nvim rg; do
+for t in bash curl git tmux nvim rg; do
   if command -v "$t" >/dev/null 2>&1; then pass "$t  $(command -v "$t")"; else fail "$t not found"; fi
 done
-for t in gh fzf claude codex node; do
+for t in gh fzf claude codex pi node ghostty; do
   if command -v "$t" >/dev/null 2>&1; then pass "$t  $(command -v "$t")"; else note "$t not found (optional)"; fi
 done
 
@@ -57,6 +58,23 @@ fi
 if command -v nvim >/dev/null 2>&1; then
   if nvim --headless "+lua vim.cmd('quit')" +qa >/dev/null 2>&1; then pass "nvim starts clean"
   else fail "nvim reported errors on startup -- run: nvim --headless +qa"; fi
+fi
+
+section "managed"
+manifest="$ME_STATE/state/managed.tsv"
+if [[ -f $manifest ]]; then
+  missing=0 total=0
+  while IFS=$'\t' read -r mod path; do
+    [[ -n $path ]] || continue
+    total=$((total + 1))
+    if [[ ! -e $path && ! -L $path ]]; then
+      fail "${path/#$HOME/\~} ($mod) is in the manifest but missing -- run: me install"
+      missing=$((missing + 1))
+    fi
+  done < "$manifest"
+  [[ $missing -eq 0 ]] && pass "all $total managed paths present"
+else
+  warn "no manifest yet -- run: me install"
 fi
 
 section "secrets"

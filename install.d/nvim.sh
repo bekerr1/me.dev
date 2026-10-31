@@ -7,10 +7,10 @@ if have nvim; then
   case "$ver" in
     0.[0-9].*)
       case "$ver" in
-        0.1[0-9]*) ok "neovim $ver" ;;
+        0.1[0-9]*) info "neovim $ver" ;;
         *) warn "neovim $ver is older than 0.10; treesitter and gitsigns need 0.10+" ;;
       esac ;;
-    *) ok "neovim $ver" ;;
+    *) info "neovim $ver" ;;
   esac
 else
   warn "neovim is not installed; config linked but unusable until it is"
@@ -20,12 +20,19 @@ fi
 # enough that you will stop using the picker.
 have rg || warn "ripgrep not found -- telescope live_grep will be very slow"
 
+# Reconcile plugins with the spec in nvim/lua/me/plugins: install what is
+# missing, remove what is no longer listed. Deliberately not `sync`, which also
+# updates every plugin to its newest commit, so two runs would not agree.
+# Update on purpose with :Lazy update.
 if [[ $ME_MINIMAL == 1 || $ME_NO_NET == 1 ]]; then
-  skip "not syncing plugins (--minimal/--no-net)"
+  skip "not reconciling plugins (--minimal/--no-net)"
 elif [[ $ME_DRY_RUN == 1 ]]; then
-  skip "dry run: not syncing plugins"
+  skip "dry run: not reconciling plugins"
 elif have nvim; then
-  log "  syncing plugins (first run clones lazy.nvim; this takes a minute)"
-  nvim --headless "+Lazy! sync" +qa 2>&1 | tail -3 || warn "plugin sync reported errors; run :Lazy in nvim to inspect"
-  ok "plugins synced"
+  log "  reconciling plugins (first run clones lazy.nvim; this takes a minute)"
+  if nvim --headless "+Lazy! install" "+Lazy! clean" +qa >/dev/null 2>&1; then
+    info "plugins match the spec"
+  else
+    warn "plugin install reported errors; run :Lazy in nvim to inspect"
+  fi
 fi
