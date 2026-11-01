@@ -146,6 +146,12 @@ The same motions apply through the vscode-neovim extension: `J`/`K` travel,
 `ss` saves, `d` does not clobber the yank register. Plus `C-n` explorer,
 `H`/`L` previous/next editor, `C-f` last editor, `C-t` terminal.
 
+Terminal bindings map onto the host's equivalents: `C-h/j/k/l` move between
+editor groups and panels, the `<leader>f` family opens Cursor's pickers
+(quick open, search, open editors, recent, find, problems), `]c`/`[c` and
+`<leader>g` act on git changes, `<leader>e` shows the hover with diagnostics.
+`<leader>fh` has no equivalent.
+
 ## git
 
 `git commit` opens a plugin-free nvim with a 72-column ruler and spell check.
