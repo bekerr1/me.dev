@@ -24,6 +24,10 @@ latest_npm=$(curl -fsS https://registry.npmjs.org/skills 2>/dev/null \
   | python3 -c 'import sys,json;print(json.load(sys.stdin)["dist-tags"]["latest"])' 2>/dev/null)
 check skills "$SKILLS_NPM_VERSION" "$latest_npm"
 
+latest_vn=$(curl -fsS https://open-vsx.org/api/asvetliakov/vscode-neovim 2>/dev/null \
+  | python3 -c 'import sys,json;print(json.load(sys.stdin)["version"])' 2>/dev/null)
+check vscode-neovim "$VSCODE_NEOVIM_VERSION" "$latest_vn"
+
 if command -v gh >/dev/null 2>&1; then
   latest_fm=$(gh api repos/kunchenguid/firstmate/commits/main --jq '.sha' 2>/dev/null | cut -c1-12)
   check firstmate "$FIRSTMATE_REF" "$latest_fm"

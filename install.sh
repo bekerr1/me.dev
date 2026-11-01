@@ -20,7 +20,7 @@ ME_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export ME_ROOT
 . "$ME_ROOT/lib/common.sh"
 
-MODULES=(packages shell git tmux nvim ghostty agents)
+MODULES=(packages shell git tmux nvim cursor ghostty agents)
 ONLY=""
 SKIP=""
 
