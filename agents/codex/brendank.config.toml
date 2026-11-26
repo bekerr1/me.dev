@@ -1,0 +1,17 @@
+approval_policy = "on-request"
+approvals_reviewer = "auto_review"
+default_permissions = "me-dev"
+model = "gpt-6.2-sol"
+model_reasoning_effort = "high"
+
+[permissions.me-dev]
+extends = ":workspace"
+
+[permissions.me-dev.workspace_roots]
+"/home/brendank/dev/me.dev" = true
+
+[permissions.me-dev.filesystem]
+"/home/brendank/dev/me.dev/.git" = "write"
+
+[sandbox_workspace_write]
+writable_roots = ["/home/brendank/dev/me.dev"]

@@ -6,6 +6,10 @@ alias ccc='claude --continue'
 alias ccr='claude --resume'
 alias cx='codex'
 alias cxr='codex resume --last'
+if [[ -r "${CODEX_HOME:-$HOME/.codex}/brendank.config.toml" ]]; then
+  alias cx='codex --profile brendank'
+  alias cxr='codex --profile brendank resume --last'
+fi
 
 # Every harness reads the same instruction file. See agents/AGENTS.md.
 export ME_AGENTS_FILE="$HOME/.config/me/AGENTS.md"

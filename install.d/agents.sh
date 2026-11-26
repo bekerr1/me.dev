@@ -8,6 +8,7 @@
 
 link "$ME_ROOT/agents/AGENTS.md" "$ME_STATE/AGENTS.md"
 link "$ME_ROOT/agents/AGENTS.md" "$HOME/.codex/AGENTS.md"
+link "$ME_ROOT/agents/codex/brendank.config.toml" "$HOME/.codex/brendank.config.toml"
 link "$ME_ROOT/agents/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
 
 # ~/AGENTS.md used to be the Pi fallback, linked before the manifest existed.
