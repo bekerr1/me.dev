@@ -48,6 +48,57 @@ os_name() {
 
 have() { command -v "$1" >/dev/null 2>&1; }
 
+# pkg_install <pkg[:cmd]>...  -- install whichever of these are missing.
+pkg_install() {
+  local missing=() spec p
+  for spec in "$@"; do
+    p="${spec%%:*}"
+    if have "${spec##*:}"; then skip "$p"; else missing+=("$p"); fi
+  done
+  [[ ${#missing[@]} -eq 0 ]] && return 0
+
+  if [[ $ME_NO_NET == 1 ]]; then
+    partial
+    warn "missing: ${missing[*]} (not installing with --no-net)"
+    return 0
+  fi
+
+  case "$(os_name)" in
+    macos)
+      if ! have brew; then
+        warn "missing: ${missing[*]} -- install Homebrew first: https://brew.sh"
+        return 0
+      fi
+      for p in "${missing[@]}"; do
+        case "$p" in
+          ghostty|docker-desktop) run brew install --cask "$p" ;;
+          *)       run brew install "$p" ;;
+        esac && ok "$p"
+      done
+      ;;
+    linux)
+      if ! have apt-get; then
+        warn "missing: ${missing[*]} -- no apt-get here, install them with your package manager"
+        return 0
+      fi
+      local sudo=()
+      [[ $EUID -ne 0 ]] && sudo=(sudo)
+      if [[ ${#sudo[@]} -gt 0 ]] && ! have sudo; then
+        warn "missing: ${missing[*]} -- no sudo, ask an admin to install them"
+        return 0
+      fi
+      log "  apt-get install ${missing[*]} (may ask for your password)"
+      run "${sudo[@]}" apt-get update -qq \
+        && run "${sudo[@]}" env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "${missing[@]}" \
+        && ok "installed ${missing[*]}" \
+        || warn "apt-get install failed: ${missing[*]}"
+      ;;
+    *)
+      warn "missing: ${missing[*]} -- unknown OS, install them by hand"
+      ;;
+  esac
+}
+
 # link <source-in-repo> <dest-path>
 # Idempotent. Backs up anything real that is in the way, replaces stale symlinks.
 link() {

@@ -1,0 +1,16 @@
+[Unit]
+Description=Docker Engine installed by me.dev
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=notify
+Environment=PATH=@DOCKER_BIN@:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=@DOCKER_BIN@/dockerd
+Delegate=yes
+KillMode=process
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

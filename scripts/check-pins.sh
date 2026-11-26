@@ -39,6 +39,8 @@ latest_rust=$(curl -fsS https://static.rust-lang.org/dist/channel-rust-stable.to
   | sed -n '/^\[pkg.rust\]/{n;s/^version = "\([^ ]*\).*/\1/p;}')
 check rust "$RUST_VERSION" "$latest_rust"
 
+check kubectl "$KUBECTL_VERSION" "$(curl -fsS https://dl.k8s.io/release/stable.txt 2>/dev/null)"
+
 if command -v gh >/dev/null 2>&1; then
   latest_fm=$(gh api repos/kunchenguid/firstmate/commits/main --jq '.sha' 2>/dev/null | cut -c1-12)
   check firstmate "$FIRSTMATE_REF" "$latest_fm"
@@ -51,6 +53,15 @@ if command -v gh >/dev/null 2>&1; then
 
   latest_pi=$(gh api repos/earendil-works/pi/releases/latest --jq '.tag_name' 2>/dev/null)
   check pi "$PI_VERSION" "$latest_pi"
+
+  latest_helm=$(gh api repos/helm/helm/releases/latest --jq '.tag_name' 2>/dev/null)
+  check helm "$HELM_VERSION" "$latest_helm"
+
+  latest_kind=$(gh api repos/kubernetes-sigs/kind/releases/latest --jq '.tag_name' 2>/dev/null)
+  check kind "$KIND_VERSION" "$latest_kind"
+
+  latest_docker=$(gh api repos/moby/moby/releases/latest --jq '.tag_name' 2>/dev/null)
+  check docker "${DOCKER_VERSION#v}" "${latest_docker#docker-v}"
 else
   echo "gh not installed -- skipping the GitHub-hosted pins"
 fi

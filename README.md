@@ -23,9 +23,10 @@ tracked.
 
 | Command | What it does |
 | --- | --- |
-| `./install.sh` | Everything: system packages (curl, git, Ghostty), shell, git, tmux, neovim, agent instructions and all agent tooling |
+| `./install.sh` | Everything: system packages (curl, git, Ghostty), shell, git, tmux, neovim, cloud tools, agent instructions and all agent tooling |
 | `./install.sh --minimal` | curl and git, then shell, git, tmux only, for servers and jump boxes. No Ghostty. |
 | `./install.sh --only nvim` | One module |
+| `./install.sh --only cloud-tools` | Kubernetes clients and a local Docker runtime |
 | `./install.sh --no-net` | Relink config, download nothing |
 | `./install.sh --dry-run` | Show what would change |
 
@@ -80,12 +81,40 @@ use `:Lazy update` for that.
 package manager: `curl`, `git` and `tmux` everywhere, plus Neovim, ripgrep,
 fzf and [Ghostty](https://ghostty.org), the default terminal, unless
 `--minimal` is set.
-It uses `apt-get` on Linux and Homebrew on macOS. This is the only module that
-runs `sudo`, and only when something is missing, so re-runs never prompt.
+It uses `apt-get` on Linux and Homebrew on macOS. Package installation on Linux
+uses `sudo` when a package is missing.
 `--no-net` reports what is missing but installs nothing.
 
 On Linux it also makes Ghostty the default terminal (Ctrl+Alt+T, "Open in
 Terminal") by writing `~/.config/xdg-terminals.list`.
+
+### Cloud tools
+
+The default install adds pinned `kubectl`, `helm`, and `kind` to `~/.local/bin`.
+On Linux it downloads Docker Engine and its bundled containerd from Docker and
+uses `sudo` to install and enable `me-docker.service` on systemd. If you already
+run packaged Docker, plan the switch before disabling `docker.service` and
+`docker.socket`. The managed service starts on Docker's default socket and uses
+the existing Docker configuration and data directories. Version changes restart
+the daemon. Re-run the installer with a newer version to apply Docker security
+updates. Linux users who need access to the socket can join the `docker` group
+separately, which grants root-equivalent access.
+
+On macOS the installer uses Docker Desktop via Homebrew. Open Docker Desktop
+once to finish setup before running `kind`. Docker publishes a limited set of
+[older Desktop installers](https://docs.docker.com/desktop/release-notes/).
+
+The default versions are pinned in `tools.env`. Set `DOCKER_VERSION` (Linux),
+`KUBECTL_VERSION`, `HELM_VERSION`, or `KIND_VERSION` to a version upstream
+publishes for your platform, or to `latest`. Older Docker archives may be
+available without a published checksum.
+
+```bash
+DOCKER_VERSION=latest KUBECTL_VERSION=latest HELM_VERSION=v4.3.1 KIND_VERSION=latest me install --only cloud-tools
+```
+
+Use `--skip cloud-tools` to omit the module. `--minimal` and `--no-net` skip
+installation of these tools.
 
 ## Languages in Cursor
 
@@ -130,7 +159,8 @@ me edit       open this repo in nvim
 
 ```
 install.sh          entry point; install.d/*.sh are the modules
-install.d/packages.sh  OS packages (curl, git, tmux, neovim, ...); the only module that uses sudo
+install.d/packages.sh  OS packages (curl, git, tmux, neovim, ...)
+install.d/cloud-tools.sh  kubectl, Helm, kind, and Docker
 lib/common.sh       symlink/backup/logging helpers
 tools.env           pinned versions of everything fetched from the network
 
