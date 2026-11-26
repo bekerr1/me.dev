@@ -20,6 +20,7 @@ path_prepend /opt/homebrew/bin            # macOS arm64
 path_prepend /opt/homebrew/sbin
 path_prepend "$HOME/.cargo/bin"
 path_prepend "$HOME/go/bin"
+path_prepend "$HOME/.pixi/bin"            # pixi and its global tools
 path_prepend "$HOME/.local/bin"
 path_prepend "$HOME/.config/me/root/bin"  # this repo's bin/
 export PATH

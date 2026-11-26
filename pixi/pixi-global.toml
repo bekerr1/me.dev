@@ -1,0 +1,42 @@
+# pixi global tools: CLI tools from conda-forge, each in its own environment,
+# exposed on ~/.pixi/bin. No sudo, same versions on Linux and macOS.
+#
+# Linked to ~/.pixi/manifests/pixi-global.toml; `me install` runs
+# `pixi global sync` against it. `pixi global install <pkg>` writes here
+# through the link, so commit what it adds. Versions are pinned exactly.
+
+version = 1
+
+# Language server for C/C++: Cursor's vscode-clangd runs this one. `clang`
+# supplies the builtin headers (stddef.h, ...) under lib/clang/<ver>, which
+# clang-tools does not ship. Editors should run envs/clang-tools/bin/clangd,
+# not the ~/.pixi/bin trampoline: clangd finds those headers relative to its
+# own path.
+[envs.clang-tools]
+channels = ["conda-forge"]
+dependencies = { clang-tools = "==23.1.4", clang = "==23.1.4" }
+exposed = { clangd = "clangd", clang-format = "clang-format" }
+
+# Go toolchain and its language server. Cursor's Go extension runs the
+# ~/.pixi/bin trampolines by absolute path (see install.d/cursor.sh), so it gets
+# the same environment as the shell. conda-forge's go sets GOTOOLCHAIN=local in
+# that environment: a go.mod that needs a newer Go fails rather than
+# downloading one. Bump the pin here instead.
+[envs.go]
+channels = ["conda-forge"]
+dependencies = { go = "==1.27.3", gopls = "==0.23.0" }
+exposed = { go = "go", gofmt = "gofmt", gopls = "gopls" }
+
+# CMake and Ninja for C/C++ builds. The compiler comes from each project's own
+# pixi.toml; there is deliberately no global C++ compiler.
+[envs.cmake]
+channels = ["conda-forge"]
+dependencies = { cmake = "==4.4.5", ninja = "==1.13.2" }
+exposed = { cmake = "cmake", ctest = "ctest", ninja = "ninja" }
+
+# A C compiler on PATH, which nvim-treesitter needs to build its parsers.
+# Projects bring their own toolchain through their own pixi.toml.
+[envs.gcc]
+channels = ["conda-forge"]
+dependencies = { gcc = "==16.2.0" }
+exposed = { cc = "gcc", gcc = "gcc" }

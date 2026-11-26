@@ -42,7 +42,7 @@ section "tools"
 for t in bash curl git tmux nvim rg; do
   if command -v "$t" >/dev/null 2>&1; then pass "$t  $(command -v "$t")"; else fail "$t not found"; fi
 done
-for t in gh fzf claude codex pi node ghostty; do
+for t in gh fzf claude codex pi node ghostty go gopls cargo rust-analyzer cmake ninja; do
   if command -v "$t" >/dev/null 2>&1; then pass "$t  $(command -v "$t")"; else note "$t not found (optional)"; fi
 done
 

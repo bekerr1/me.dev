@@ -1,5 +1,8 @@
 # Cursor: the vscode-neovim extension, so the nvim config (and its vscode.lua
-# branch) drives the editor, plus the one setting the extension wants.
+# branch) drives the editor, plus the one setting the extension wants;
+# vscode-clangd for C/C++ navigation; vscode-go for Go; rust-analyzer for Rust.
+# The language servers themselves come from pixi.sh (clangd, gopls) and rust.sh
+# (rust-analyzer).
 #
 # Cursor rewrites settings.json from its own UI, so it is not linked from the
 # repo. The installer merges in only the keys below and leaves the rest alone.
@@ -17,18 +20,23 @@ fi
 # --- extension ------------------------------------------------------------
 
 section extension
-ext="asvetliakov.vscode-neovim"
-if cursor --list-extensions --show-versions 2>/dev/null | grep -qxF "$ext@$VSCODE_NEOVIM_VERSION"; then
-  skip "$ext $VSCODE_NEOVIM_VERSION"
-elif [[ $ME_NO_NET == 1 ]]; then
-  partial "not installing $ext (--no-net)"
-elif [[ $ME_DRY_RUN == 1 ]]; then
-  ok "dry run: would install $ext@$VSCODE_NEOVIM_VERSION"
-elif cursor --install-extension "$ext@$VSCODE_NEOVIM_VERSION" --force >/dev/null 2>&1; then
-  ok "$ext $VSCODE_NEOVIM_VERSION"
-else
-  warn "could not install $ext; run: cursor --install-extension $ext@$VSCODE_NEOVIM_VERSION"
-fi
+installed=$(cursor --list-extensions --show-versions 2>/dev/null)
+for want in "asvetliakov.vscode-neovim@$VSCODE_NEOVIM_VERSION" \
+            "llvm-vs-code-extensions.vscode-clangd@$VSCODE_CLANGD_VERSION" \
+            "golang.go@$VSCODE_GO_VERSION" \
+            "rust-lang.rust-analyzer@$VSCODE_RUST_ANALYZER_VERSION"; do
+  if grep -qxF "$want" <<< "$installed"; then
+    skip "$want"
+  elif [[ $ME_NO_NET == 1 ]]; then
+    partial "not installing $want (--no-net)"
+  elif [[ $ME_DRY_RUN == 1 ]]; then
+    ok "dry run: would install $want"
+  elif cursor --install-extension "$want" --force >/dev/null 2>&1; then
+    ok "$want"
+  else
+    warn "could not install $want; run: cursor --install-extension $want"
+  fi
+done
 
 # --- settings -------------------------------------------------------------
 
@@ -38,9 +46,25 @@ case "$(os_name)" in
   *)     settings="$HOME/.config/Cursor/User/settings.json" ;;
 esac
 
-# Runs the extension in its own process so nvim never stalls the editor.
-# Recommended by the vscode-neovim README.
-merge='{"extensions.experimental.affinity": {"asvetliakov.vscode-neovim": 1}}'
+# affinity: runs vscode-neovim in its own process so nvim never stalls the
+#   editor. Recommended by the vscode-neovim README.
+# clangd.path: absolute, because Cursor started from the desktop does not get
+#   the shell's PATH. The real binary inside the env, not the ~/.pixi/bin
+#   trampoline, so clangd can locate its builtin headers.
+# --query-driver: lets clangd run a pixi project's compiler to learn where its
+#   standard headers are. Without it, <vector> is not found in pixi builds.
+# go.alternateTools: absolute paths for the same reason as clangd.path. Here
+#   the ~/.pixi/bin trampolines, not the env binaries: they set GOROOT,
+#   GOTOOLCHAIN and PATH exactly as the shell's `go` does.
+# rust-analyzer.server.path: rustup's proxy instead of the server bundled in the
+#   extension, so it matches the project's toolchain. It finds cargo in
+#   ~/.cargo/bin on its own, without the shell's PATH.
+merge=$(printf '{"extensions.experimental.affinity": {"asvetliakov.vscode-neovim": 1},
+  "clangd.path": "%s/.pixi/envs/clang-tools/bin/clangd",
+  "clangd.arguments": ["--query-driver=**/.pixi/envs/*/bin/*"],
+  "go.alternateTools": {"go": "%s/.pixi/bin/go", "gopls": "%s/.pixi/bin/gopls"},
+  "rust-analyzer.server.path": "%s/.cargo/bin/rust-analyzer"}' \
+  "$HOME" "$HOME" "$HOME" "$HOME")
 
 if ! have python3; then
   warn "python3 not found; add to $(prettify "$settings"): $merge"
@@ -80,7 +104,7 @@ EOF
 rc=0
 merge_settings "$([[ $ME_DRY_RUN == 1 ]] && echo 0 || echo 1)" || rc=$?
 case $rc in
-  0)  skip "$(prettify "$settings") already has the vscode-neovim settings" ;;
+  0)  skip "$(prettify "$settings") already has the neovim, clangd, go and rust settings" ;;
   10) if [[ $ME_DRY_RUN == 1 ]]; then
         ok "dry run: would update $(prettify "$settings")"
       else

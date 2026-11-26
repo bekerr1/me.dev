@@ -6,7 +6,8 @@
 #   core     curl, git, tmux    every machine, --minimal included; the rest
 #                               of the installer downloads with curl
 #   dev      neovim, ripgrep,   the editor and what it leans on; skipped by
-#            fzf                --minimal
+#            fzf, gcc (linux)   --minimal. gcc is the system C compiler and
+#                               linker Rust links with (see rust.sh); C only.
 #   desktop  ghostty            the default terminal; skipped by --minimal
 #
 # Entries are `package` or `package:command` when the two names differ.
@@ -15,6 +16,8 @@
 
 ME_CORE_PKGS=(curl git tmux)
 ME_DEV_PKGS=(neovim:nvim ripgrep:rg fzf)
+# Checked by path: pixi's gcc is on PATH too, and does not count.
+[[ $(os_name) == linux ]] && ME_DEV_PKGS+=(gcc:/usr/bin/cc)
 ME_DESKTOP_PKGS=(ghostty)
 
 # pkg_install <pkg[:cmd]>...  -- install whichever of these are missing.

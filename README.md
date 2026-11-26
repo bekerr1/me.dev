@@ -87,6 +87,25 @@ runs `sudo`, and only when something is missing, so re-runs never prompt.
 On Linux it also makes Ghostty the default terminal (Ctrl+Alt+T, "Open in
 Terminal") by writing `~/.config/xdg-terminals.list`.
 
+## Languages in Cursor
+
+Go, Rust and C/C++ work in Cursor out of the box. Each language server comes
+from a pinned toolchain, and `install.d/cursor.sh` installs the matching
+extension and merges absolute paths into Cursor's `settings.json`, because Cursor
+started from the desktop does not get the shell's PATH.
+
+| Language | Toolchain | Language server | Cursor extension |
+| --- | --- | --- | --- |
+| Go | pixi `go` env (`GOTOOLCHAIN=local`: bump the pin for newer Go) | gopls, same env | `golang.go` |
+| Rust | rustup + pinned default toolchain (`install.d/rust.sh`); `rust-toolchain.toml` still honoured | rustup's `rust-analyzer` component | `rust-lang.rust-analyzer` |
+| C/C++ | compiler from each project's own `pixi.toml`; CMake + Ninja from pixi | clangd from pixi | `vscode-clangd` |
+
+Rust links with the system `gcc` (C only, from apt), pinned in the generated
+`~/.cargo/config.toml`, so the terminal and Cursor link the same way. For
+clangd, configure CMake with `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON`.
+
+No debuggers yet.
+
 ## Terminal colors
 
 `ghostty/config.ghostty` is linked to `~/.config/ghostty/config.ghostty`. It uses
